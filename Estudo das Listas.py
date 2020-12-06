@@ -1,6 +1,12 @@
-lista_1 = {1,5,10,50}
+lista = [1,5,10,50]
 
-print(lista_1)
+print (lista)
+
+
+
+
+
+
 
 "Lista é uma estrutura linear - cresce apenas em uma dimensão"
 
