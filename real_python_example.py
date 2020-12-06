@@ -7,6 +7,7 @@ https://realpython.com/linear-programming-python/
 import numpy as np
 from scipy.optimize import linprog
 from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable
+from pulp import GLPK
 
 
 def main_scipy():
@@ -49,7 +50,8 @@ def main_scipy():
     rhs_eq = [15]
     bnd = [(0, np.inf), (0, np.inf)]
 
-    opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, A_eq=lhs_eq, b_eq=rhs_eq, bounds=bnd)
+    # opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, A_eq=lhs_eq, b_eq=rhs_eq, bounds=bnd)
+    opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, bounds=bnd)
 
     print(opt)
 
@@ -59,11 +61,29 @@ def main_pulp():
     model = LpProblem(name="real_python_example", sense=LpMaximize)
 
     # Initialize the decision variables
-    x = LpVariable(name="x", lowBound=0)
+    x = LpVariable(name="x", lowBound=0, cat="Integer")
     y = LpVariable(name="y", lowBound=0)
 
-    
+    # Add the constraints to the model
+    model += (2 * x + y <= 20, "red_constraint")
+    model += (-4 * x + 5 * y <= 10, "blue_constraint")
+    model += (-x + 2 * y >= -2, "yellow_constraint")
+    model += (-x + 5 * y == 15, "green_constraint")
+
+    # Add the objective function to the model
+    model += lpSum([x, 2 * y])
+    # model += x + 2 * y
+
+    status = model.solve()
+    # status = model.solve(solver=GLPK(msg=False))
+
+    print(model.status)
+
+    print(LpStatus[model.status])
+    print(model.objective.value())
+    for var in model.variables():
+        print('{}: {}'.format(var.name, var.value()))
 
 
 if __name__ == '__main__':
-    main_scipy()
+    main_pulp()
